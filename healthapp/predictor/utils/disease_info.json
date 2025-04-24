@@ -1,0 +1,19 @@
+
+
+{
+     "Diabetes": {
+       "description": "A chronic condition affecting blood sugar regulation.",
+       "do": ["Eat balanced meals", "Exercise regularly"],
+       "dont": ["Skip meals", "Consume excessive sugar"],
+       "workout": "Light cardio, daily walks",
+       "diet": "Low-carb, high-fiber diet"
+     },
+     "Hypertension": {
+       "description": "High blood pressure condition.",
+       "do": ["Limit salt intake", "Manage stress"],
+       "dont": ["Consume alcohol excessively", "Smoke"],
+       "workout": "Yoga, brisk walking",
+       "diet": "DASH diet, fruits, veggies"
+     }
+   }
+   

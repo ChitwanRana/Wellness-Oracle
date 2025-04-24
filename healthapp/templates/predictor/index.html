@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Disease Predictor</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Disease Predictor</h1>
+        <form method="post">
+            {% csrf_token %}
+            <label for="symptom">Enter your symptoms:</label>
+            <input type="text" name="symptom" id="symptom" required>
+            <button type="submit">Submit</button>
+        </form>
+
+        {% if matched_symptoms %}
+        <h3>Matched Symptoms:</h3>
+        <ul>
+            {% for symptom, score in matched_symptoms %}
+                <li>{{ symptom }} ({{ score|floatformat:2 }})</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if prediction %}
+        <h3>Disease Prediction: {{ prediction }}</h3>
+        <p><strong>Description:</strong> {{ info.description }}</p>
+        <p><strong>Do's:</strong> {{ info.do|join:', ' }}</p>
+        <p><strong>Don'ts:</strong> {{ info.dont|join:', ' }}</p>
+        <p><strong>Workout:</strong> {{ info.workout }}</p>
+        <p><strong>Diet:</strong> {{ info.diet }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
