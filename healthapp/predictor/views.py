@@ -6,6 +6,9 @@ import json
 # Imports from utils
 from predictor.utils.predict import get_prediction
 from predictor.utils.transformer import process_symptoms
+from django.shortcuts import render
+from .utils.transformer import match_symptom, process_symptoms  # adjust if needed
+
 
 # Load disease info JSON once
 with open("predictor/utils/disease_info.json") as f:
@@ -27,28 +30,28 @@ def get_matches(request):
 # API Endpoint: Predict Disease
 # -----------------------------------
 @csrf_exempt
-def predict_disease(request):
-    if request.method == "POST":
-        try:
-            body = json.loads(request.body)
-            matched_symptoms = body.get("matched_symptoms", [])
-            predictions = get_prediction(matched_symptoms)
-            disease = predictions[0] if predictions else "Unknown"
+def disease_predictor_view(request):
+    matched_symptoms = prediction = info = None
 
-            info = disease_info.get(disease, {
-                "description": "Info not found.",
-                "do": [], "dont": [], "workout": "", "diet": ""
-            })
+    if request.method == 'POST':
+        action = request.POST.get('action')
 
-            return JsonResponse({
-                "disease": disease,
-                "info": info
-            })
+        if action == 'get_matches':
+            user_input = request.POST.get('symptom')
+            if user_input:
+                matched_symptoms = match_symptom(user_input)
+        elif action == 'get_prediction':
+            selected_raw = request.POST.get('selected_symptoms')
+            selected_symptoms = selected_raw.split(',') if selected_raw else []
+            if selected_symptoms:
+                prediction, info = process_symptoms(selected_symptoms)
 
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+    return render(request, 'disease_predictor.html', {
+        'matched_symptoms': matched_symptoms,
+        'prediction': prediction,
+        'info': info,
+    })
 
-    return JsonResponse({"error": "Invalid request"}, status=405)
 
 # -----------------------------------
 # Template View: Form-based UI

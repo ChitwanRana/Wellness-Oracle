@@ -5,34 +5,75 @@
     <meta charset="UTF-8">
     <title>Disease Predictor</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        .symptom-button {
+            margin: 5px;
+            padding: 8px 12px;
+            border: none;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .symptom-button.selected {
+            background-color: #4caf50;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Disease Predictor</h1>
-        <form method="post">
+
+        <form method="post" id="symptomForm">
             {% csrf_token %}
+
             <label for="symptom">Enter your symptoms:</label>
             <input type="text" name="symptom" id="symptom" required>
             <button type="submit">Submit</button>
+
+            {% if matched_symptoms %}
+                <h3>Matched Symptoms:</h3>
+                <div id="symptom-buttons">
+                    {% for symptom, score in matched_symptoms %}
+                        <button type="button" class="symptom-button" data-symptom="{{ symptom }}">
+                            {{ symptom }} ({{ score|floatformat:2 }})
+                        </button>
+                    {% endfor %}
+                </div>
+                <!-- Hidden input to store selected symptoms -->
+                <input type="hidden" name="selected_symptoms" id="selected_symptoms">
+                <button type="submit">Get Prediction</button>
+            {% endif %}
         </form>
 
-        {% if matched_symptoms %}
-        <h3>Matched Symptoms:</h3>
-        <ul>
-            {% for symptom, score in matched_symptoms %}
-                <li>{{ symptom }} ({{ score|floatformat:2 }})</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-
         {% if prediction %}
-        <h3>Disease Prediction: {{ prediction }}</h3>
-        <p><strong>Description:</strong> {{ info.description }}</p>
-        <p><strong>Do's:</strong> {{ info.do|join:', ' }}</p>
-        <p><strong>Don'ts:</strong> {{ info.dont|join:', ' }}</p>
-        <p><strong>Workout:</strong> {{ info.workout }}</p>
-        <p><strong>Diet:</strong> {{ info.diet }}</p>
+            <h3>Disease Prediction: {{ prediction }}</h3>
+            <p><strong>Description:</strong> {{ info.description }}</p>
+            <p><strong>Do's:</strong> {{ info.do|join:', ' }}</p>
+            <p><strong>Don'ts:</strong> {{ info.dont|join:', ' }}</p>
+            <p><strong>Workout:</strong> {{ info.workout }}</p>
+            <p><strong>Diet:</strong> {{ info.diet }}</p>
         {% endif %}
     </div>
+
+    <script>
+        const selected = new Set();
+        const buttons = document.querySelectorAll('.symptom-button');
+        const hiddenInput = document.getElementById('selected_symptoms');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const symptom = button.getAttribute('data-symptom');
+                if (selected.has(symptom)) {
+                    selected.delete(symptom);
+                    button.classList.remove('selected');
+                } else {
+                    selected.add(symptom);
+                    button.classList.add('selected');
+                }
+                hiddenInput.value = Array.from(selected).join(',');
+            });
+        });
+    </script>
 </body>
 </html>
